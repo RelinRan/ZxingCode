@@ -12,7 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.zxing.R;
-import com.android.zxing.coder.ZxingDecoder;
+import com.android.zxing.coder.OnScanCodeListener;
+import com.android.zxing.coder.ZXReader;
 import com.android.zxing.utils.CameraManager;
 import com.android.zxing.utils.FocusSensor;
 import com.android.zxing.utils.ScanVibrator;
@@ -25,7 +26,7 @@ import com.google.zxing.Result;
  * <uses-permission android:name="android.permission.VIBRATE" />
  */
 public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraPreviewListener,
-        FocusSensor.OnFocusSensorChangedListener, ZxingDecoder.OnScanDecodeListener {
+        FocusSensor.OnFocusSensorChangedListener, OnScanCodeListener {
 
     private TextureView textureView;
     private CameraManager cameraManager;
@@ -130,7 +131,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         int top = (int) (yScale * scanAreaView.getBorderTop());
         int right = (int) (xScale * scanAreaView.getBorderRight());
         int bottom = (int) (yScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
-        ZxingDecoder.onPreviewFrame(data, width, height, left, top, right, bottom, false, this);
+        ZXReader.fromYuv420(data, width, height, left, top, right, bottom, false, this);
     }
 
     @Override
@@ -162,7 +163,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
      * @param result 条码数据
      */
     @Override
-    public void onScanDecodeSucceed(Result result) {
+    public void onScanCodeSucceed(Result result) {
         scanVibrator.start();
         if (onScanCodeListener != null) {
             onScanCodeListener.onScanCodeSucceed(result);
@@ -175,7 +176,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
      * @param exception
      */
     @Override
-    public void onScanDecodeFailed(ReaderException exception) {
+    public void onScanCodeFailed(ReaderException exception) {
         if (onScanCodeListener != null) {
             onScanCodeListener.onScanCodeFailed(exception);
         }

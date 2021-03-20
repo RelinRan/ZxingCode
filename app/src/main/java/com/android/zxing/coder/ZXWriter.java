@@ -14,7 +14,7 @@ import java.util.Hashtable;
 /**
  * zxing创建图形码
  */
-public class ZxingEncoder {
+public class ZXWriter {
 
     /**
      * 创建矩阵
@@ -61,7 +61,7 @@ public class ZxingEncoder {
     }
 
     /**
-     * 生成QRCode（二维码）
+     * 生成码
      *
      * @param barcodeFormat 格式
      * @param data          内容

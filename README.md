@@ -1,5 +1,8 @@
 # ZxingCode
-Zxing扫码，以core-3.4.jar为基础构建的ZxingCode工具，支持创建条码二维码、扫码。
+以core-3.4.jar为基础构建，具有如下功能：
+1.创建条形码、二维码。
+2.相机扫描条形码、二维码。
+3.读取照片条形码、二维码。
 ## Dependencies
 1.build.grade
 ```
@@ -13,11 +16,12 @@ allprojects {
 2./app/build.grade
 ```
 dependencies {
-	implementation 'com.github.RelinRan:ZxingCode:1.0.0'
+	implementation 'com.github.RelinRan:ZxingCode:1.0.1'
 }
 ```
 
 ## 权限
+注意：系统6.0以上进行动态权限申请。
 ```
 <uses-permission android:name="android.permission.CAMERA"/>
 <uses-permission android:name="android.permission.VIBRATE" />
@@ -65,7 +69,7 @@ dependencies {
 ScanCodeView scan_code = findViewById(R.id.scan_code);
 scan_code.setOnScanCodeListener(new ScanResultCallback());
 //扫码监听
-private class ScanResultCallback implements ScanCodeView.OnScanCodeListener{
+private class ScanResultCallback implements OnScanCodeListener{
 @Override
 public void onScanCodeSucceed(Result result) {
     String code = result.getText();
@@ -77,12 +81,26 @@ public void onScanCodeFailed(ReaderException exception) {
    }
 }
 ```
-3.创建二维码
+4.创建二维码
 ```
-Bitmap qrCode = ZxingEncoder.createQRCode("xxxx")
+Bitmap qrCode = ZXWriter.createQRCode("xxxx")
 ```
-4.创建条形码
+5.创建条形码
 ```
-Bitmap barCode = ZxingEncoder.createCode(BarcodeFormat.CODE_128,"xxxx",300,150);
+Bitmap barCode = ZXWriter.createCode(BarcodeFormat.CODE_128,"xxxx",300,150);
 ```
+6.读取照片条形码/二维码
+```
+File file = new File("/storage/emulated/0/tencent/TIMfile_recv/0001.png");
+ZXReader.fromFile(file, new OnScanCodeListener() {
+     @Override
+     public void onScanCodeSucceed(Result result) {
 
+     }
+
+     @Override
+     public void onScanCodeFailed(ReaderException exception) {
+
+     }
+});
+```
