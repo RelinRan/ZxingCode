@@ -3,7 +3,7 @@
 1.创建条形码、二维码。
 2.相机扫描条形码、二维码。
 3.读取照片条形码、二维码。
-![avatar](/ZxingCode.png)
+![预览效果](https://github.com/RelinRan/ZxingCode/blob/master/ZxingCode.png)
 ## Dependencies
 1.build.grade
 ```
