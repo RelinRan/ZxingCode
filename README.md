@@ -20,8 +20,6 @@ dependencies {
 	implementation 'com.github.RelinRan:ZxingCode:1.0.3'
 }
 ```
-
-
 ## 权限
 注意：系统6.0以上进行动态权限申请。
 ```
