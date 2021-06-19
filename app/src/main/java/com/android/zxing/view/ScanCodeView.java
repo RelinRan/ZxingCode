@@ -134,8 +134,8 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
             int right = (int) (xScale * scanAreaView.getBorderRight());
             int bottom = (int) (yScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
             ZXReader.fromYuv420(data, width, height, left, top, right, bottom, false, this);
+            previewTime = System.currentTimeMillis();
         }
-        previewTime = System.currentTimeMillis();
     }
 
     @Override
