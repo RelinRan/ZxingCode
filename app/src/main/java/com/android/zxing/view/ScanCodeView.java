@@ -34,6 +34,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
     private FocusSensor focusSensor;
     private ScanVibrator scanVibrator;
     private OnScanCodeListener onScanCodeListener;
+    private long previewTime = 0;
 
     public ScanCodeView(@NonNull Context context) {
         super(context);
@@ -123,15 +124,18 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        int width = camera.getParameters().getPreviewSize().width;
-        int height = camera.getParameters().getPreviewSize().height;
-        float xScale = (height * 1.0F) / (scanAreaView.getWidth() * 1.0F);
-        float yScale = (width * 1.0F) / (scanAreaView.getHeight() * 1.0F);
-        int left = (int) (xScale * scanAreaView.getBorderLeft());
-        int top = (int) (yScale * scanAreaView.getBorderTop());
-        int right = (int) (xScale * scanAreaView.getBorderRight());
-        int bottom = (int) (yScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
-        ZXReader.fromYuv420(data, width, height, left, top, right, bottom, false, this);
+        if (System.currentTimeMillis() - previewTime>200){
+            int width = camera.getParameters().getPreviewSize().width;
+            int height = camera.getParameters().getPreviewSize().height;
+            float xScale = (height * 1.0F) / (scanAreaView.getWidth() * 1.0F);
+            float yScale = (width * 1.0F) / (scanAreaView.getHeight() * 1.0F);
+            int left = (int) (xScale * scanAreaView.getBorderLeft());
+            int top = (int) (yScale * scanAreaView.getBorderTop());
+            int right = (int) (xScale * scanAreaView.getBorderRight());
+            int bottom = (int) (yScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
+            ZXReader.fromYuv420(data, width, height, left, top, right, bottom, false, this);
+        }
+        previewTime = System.currentTimeMillis();
     }
 
     @Override
