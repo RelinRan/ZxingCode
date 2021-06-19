@@ -78,6 +78,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         cameraManager.startPreview(textureView);
     }
 
+
     /**
      * 初始化扫描参数
      *
