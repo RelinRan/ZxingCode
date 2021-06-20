@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.TextureView;
 import android.widget.FrameLayout;
 
@@ -35,6 +36,9 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
     private ScanVibrator scanVibrator;
     private OnScanCodeListener onScanCodeListener;
     private long previewTime = 0;
+    public static boolean BETA = false;
+    private long interval = 200;
+    private String TAG = ScanCodeView.class.getSimpleName();
 
     public ScanCodeView(@NonNull Context context) {
         super(context);
@@ -125,15 +129,21 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        if (System.currentTimeMillis() - previewTime>200){
+        if (System.currentTimeMillis() - previewTime > interval) {
             int width = camera.getParameters().getPreviewSize().width;
             int height = camera.getParameters().getPreviewSize().height;
             float xScale = (height * 1.0F) / (scanAreaView.getWidth() * 1.0F);
             float yScale = (width * 1.0F) / (scanAreaView.getHeight() * 1.0F);
             int left = (int) (xScale * scanAreaView.getBorderLeft());
             int top = (int) (yScale * scanAreaView.getBorderTop());
-            int right = (int) (xScale * scanAreaView.getBorderRight());
-            int bottom = (int) (yScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
+            int right = (int) (xScale * (scanAreaView.getBorderRight() - scanAreaView.getBorderLeft()));
+            int bottom = (int) (xScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
+            if (BETA) {
+                Log.i(TAG, "->Frame " + "width=" + width + ",height=" + height);
+                Log.i(TAG, "->Scale " + "xScale=" + xScale + ",yScale=" + yScale);
+                Log.i(TAG, "->Border " + "left=" + scanAreaView.getBorderLeft() + ",top=" + scanAreaView.getBorderTop() + ",right=" + scanAreaView.getBorderRight() + ",bottom=" + scanAreaView.getBorderBottom());
+                Log.i(TAG, "->Rect left=" + left + ",top=" + top + ",right=" + right + ",bottom=" + bottom);
+            }
             ZXReader.fromYuv420(data, width, height, left, top, right, bottom, false, this);
             previewTime = System.currentTimeMillis();
         }
@@ -257,6 +267,14 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
      */
     public ScanAreaView getScanAreaView() {
         return scanAreaView;
+    }
+
+    /**
+     * 设置预览间隔
+     * @param interval
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 
 }

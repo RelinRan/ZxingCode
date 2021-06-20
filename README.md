@@ -17,7 +17,7 @@ allprojects {
 2./app/build.grade
 ```
 dependencies {
-	implementation 'com.github.RelinRan:ZxingCode:1.0.3'
+	implementation 'com.github.RelinRan:ZxingCode:1.0.4'
 }
 ```
 ## 权限
