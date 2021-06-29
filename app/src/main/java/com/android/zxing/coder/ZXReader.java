@@ -2,6 +2,7 @@ package com.android.zxing.coder;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 
 import com.android.zxing.utils.DecoderFormat;
 import com.google.zxing.BarcodeFormat;
@@ -12,6 +13,7 @@ import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
+import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.io.File;
@@ -70,23 +72,41 @@ public class ZXReader {
      * @param listener 解析监听
      */
     public static void fromBitmap(Bitmap bitmap, OnScanCodeListener listener) {
-        BitmapLuminanceSource source = new BitmapLuminanceSource(bitmap);
-        MultiFormatReader multiFormatReader = getMultiFormatReader();
-        if (source != null) {
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
-            try {
-                Result result = multiFormatReader.decodeWithState(binaryBitmap);
-                if (listener != null) {
-                    listener.onScanCodeSucceed(result);
-                }
-            } catch (ReaderException e) {
-                if (listener != null) {
-                    listener.onScanCodeFailed(e);
-                }
-            } finally {
-                multiFormatReader.reset();
+        Result result = decodeBitmap(bitmap);
+        if (result != null) {
+            if (listener != null) {
+                listener.onScanCodeSucceed(result);
+            }
+        } else {
+            if (listener != null) {
+                listener.onScanCodeFailed(new Exception("Not found"));
             }
         }
+    }
+
+    private static Result decodeBitmap(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixels);
+        MultiFormatReader multiFormatReader = getMultiFormatReader();
+        if (rgbLuminanceSource != null) {
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
+            try {
+                return multiFormatReader.decodeWithState(binaryBitmap);
+            } catch (ReaderException e) {
+                if (rgbLuminanceSource != null) {
+                    try {
+                        return new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource)));
+                    } catch (Throwable e2) {
+                        e2.printStackTrace();
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -100,7 +120,16 @@ public class ZXReader {
             new RuntimeException("decode file failed , file is not exist.");
             return;
         }
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        int sampleSize = options.outHeight / 400;
+        if (sampleSize <= 0) {
+            sampleSize = 1;
+        }
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(),options);
         fromBitmap(bitmap, listener);
     }
 

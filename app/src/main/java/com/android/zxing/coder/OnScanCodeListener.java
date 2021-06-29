@@ -17,6 +17,6 @@ public interface OnScanCodeListener {
          *
          * @param exception 异常信息
          */
-        void onScanCodeFailed(ReaderException exception);
+        void onScanCodeFailed(Exception exception);
 
     }

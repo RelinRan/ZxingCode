@@ -185,13 +185,14 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         }
     }
 
+
     /**
      * 扫码失败
      *
      * @param exception
      */
     @Override
-    public void onScanCodeFailed(ReaderException exception) {
+    public void onScanCodeFailed(Exception exception) {
         if (onScanCodeListener != null) {
             onScanCodeListener.onScanCodeFailed(exception);
         }
@@ -220,7 +221,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
          *
          * @param exception
          */
-        void onScanCodeFailed(ReaderException exception);
+        void onScanCodeFailed(Exception exception);
 
     }
 
