@@ -124,6 +124,7 @@ public class ZXReader {
         }
     }
 
+
     /**
      * 解析Bitmap
      *
