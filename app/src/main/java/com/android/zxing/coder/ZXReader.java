@@ -182,6 +182,7 @@ public class ZXReader {
         }
     }
 
+
     /**
      * 解析图片为二维码
      *
