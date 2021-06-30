@@ -42,6 +42,10 @@ public class ZXReader {
      */
     public static int MIN_HEIGHT = 50;
     /**
+     * 指数幂 - 底数
+     */
+    public static double POWER_BASE = 0.95;
+    /**
      * 日志标识
      */
     public static final String TAG = ZXReader.class.getSimpleName();
@@ -113,10 +117,10 @@ public class ZXReader {
                 Log.i(TAG, "fromBitmap " + MSG_EXCEPTION);
                 sendReaderMessage(new ReaderBody(ReaderHandler.NOT_FOUND, null, listener));
             } else {
-                double scale = Math.pow(0.95F, level);
+                double scale = Math.pow(POWER_BASE, level);
                 int reqWidth = (int) (width * scale);
                 int reqHeight = (int) (height * scale);
-                Log.i(TAG, "fromBitmap reqWidth = " + reqWidth + ",reqHeight = " + reqHeight + ",level = " + level);
+                Log.i(TAG, "fromBitmap reqWidth = " + reqWidth + ",reqHeight = " + reqHeight + ",level = " + level+",POWER_BASE = "+POWER_BASE);
                 Bitmap scaleBitmap = scaleBitmap(bitmap, reqWidth, reqHeight);
                 level += 1;
                 fromBitmap(level, scaleBitmap, listener);
