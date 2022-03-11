@@ -54,8 +54,8 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         super(context, attrs, defStyleAttr);
         initAttributeSet(context, attrs);
     }
-
     /**
+
      * 初始化
      *
      * @param context
@@ -241,6 +241,14 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
      */
     public CameraManager getCameraManager() {
         return cameraManager;
+    }
+
+    /**
+     * 设置手电筒
+     * @param open 是否打开
+     */
+    public void setFlashlight(boolean open){
+        cameraManager.setFlashlight(open);
     }
 
     /**

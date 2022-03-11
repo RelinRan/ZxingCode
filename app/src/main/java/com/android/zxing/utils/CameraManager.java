@@ -125,7 +125,6 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
         }
         analyzingCameraParameters(camera);
         size = setCameraPreviewPictureSize(camera, orientation, requireWidth, requireHeight);
-
     }
 
     /**
@@ -152,6 +151,26 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
     }
 
     /**
+     * 设置手电筒
+     *
+     * @param open 是否打开
+     */
+    public void setFlashlight(boolean open) {
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setFlashMode(open ? Camera.Parameters.FLASH_MODE_ON : Camera.Parameters.FLASH_MODE_OFF);
+        try {
+            camera.setParameters(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (open) {
+            camera.startPreview();
+        } else {
+            camera.stopPreview();
+        }
+    }
+
+    /**
      * 自动聚焦
      */
     public void autoFocus() {
@@ -164,7 +183,7 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
                     camera.cancelAutoFocus();
                 }
             });
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -292,7 +311,7 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
         open(cameraId);
         startPreview(surface, this);
         if (onCameraPreviewListener != null) {
-            onCameraPreviewListener.onSurfaceTextureAvailable(surface,width,height);
+            onCameraPreviewListener.onSurfaceTextureAvailable(surface, width, height);
         }
     }
 

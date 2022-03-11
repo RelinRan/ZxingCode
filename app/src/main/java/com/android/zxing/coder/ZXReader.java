@@ -120,7 +120,7 @@ public class ZXReader {
                 double scale = Math.pow(POWER_BASE, level);
                 int reqWidth = (int) (width * scale);
                 int reqHeight = (int) (height * scale);
-                Log.i(TAG, "fromBitmap reqWidth = " + reqWidth + ",reqHeight = " + reqHeight + ",level = " + level+",POWER_BASE = "+POWER_BASE);
+                Log.i(TAG, "fromBitmap reqWidth = " + reqWidth + ",reqHeight = " + reqHeight + ",level = " + level + ",POWER_BASE = " + POWER_BASE);
                 Bitmap scaleBitmap = scaleBitmap(bitmap, reqWidth, reqHeight);
                 level += 1;
                 fromBitmap(level, scaleBitmap, listener);
@@ -324,6 +324,10 @@ public class ZXReader {
      * @param reverseHorizontal 水平反转
      */
     public static void fromYuv420(byte[] yuv420, int dataWidth, int dataHeight, int left, int top, int width, int height, boolean reverseHorizontal, OnScanCodeListener listener) {
+        if (height <= 0 || width <= 0) {
+            Log.e(TAG, "模拟器不支持二维码扫码.");
+            return;
+        }
         byte[] data = correctYuv420(yuv420, dataWidth, dataHeight);
         PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data, dataHeight, dataWidth, left, top, width, height, reverseHorizontal);
         MultiFormatReader multiFormatReader = getMultiFormatReader();
