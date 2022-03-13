@@ -1,6 +1,5 @@
 package com.android.zxing.coder;
 
-import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 
 public interface OnScanCodeListener {

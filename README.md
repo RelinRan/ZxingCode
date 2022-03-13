@@ -1,13 +1,18 @@
 # ZxingCode
-以core-3.4.jar为基础构建，具有如下功能：
-1.创建条形码、二维码。
-2.相机扫描条形码、二维码。
-3.读取照片条形码、二维码。
-## ARR
-[JSON.arr](https://github.com/RelinRan/ZxingCode/blob/master/ZxingCode.aar)
-![预览效果](https://github.com/RelinRan/ZxingCode/blob/master/ZxingCode.png)
+[国外GitHub](https://github.com/RelinRan/ZxingCode)、[国内Gitee](https://gitee.com/relin/ZxingCode)  
+以core-3.4.jar为基础构建，具有如下功能：  
+1.创建条形码、二维码。  
+2.相机扫描条形码、二维码。  
+3.读取照片条形码、二维码。   
+4.识别率算法修改提升。  
+## FIX-2022.3.13.1
+1.新增手电筒开关调用方法。  
+2.新增暂停解码方法。
+3.新增恢复解码方法。  
+4.虚拟机扫码崩溃。
+5.OnScanCodeListener统一为一个。
 ## Dependencies
-1.build.grade
+./build.grade | setting.grade
 ```
 allprojects {
     repositories {
@@ -16,10 +21,27 @@ allprojects {
 	}
 }
 ```
-2./app/build.grade
+./app/build.grade
 ```
 dependencies {
-	implementation 'com.github.RelinRan:ZxingCode:1.0.6'
+	implementation 'com.github.RelinRan:ZxingCode:2022.3.13.1'
+}
+```
+## ARR
+GitHub下载：[zxing_code_2022.3.13.1.aar](https://github.com/RelinRan/AndroidPay/blob/master/zxing_code_2022.3.13.1.aar)
+Gitee下载：[zxing_code_2022.3.13.1.aar](https://gitee.com/relin/AndroidPay/blob/master/zxing_code_2022.3.13.1.aar)
+下载之后放入libs文件夹里面，然后./app/build.gradle配置如下
+```
+android {
+    ....
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+dependencies {
+    implementation(name: 'zxing_code_2022.3.13.1', ext: 'aar')
 }
 ```
 ## 权限
@@ -28,16 +50,14 @@ dependencies {
 <uses-permission android:name="android.permission.CAMERA"/>
 <uses-permission android:name="android.permission.VIBRATE" />
 ```
-
 ## ScanCodeView
-1.扫码控件
 ```
 <com.android.zxing.view.ScanCodeView
     android:id="@+id/scan_code"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />
 ```
-2.属性值
+## 属性
 ```
 <!--扫描中心X-->
 <attr name="areaCenterX" format="dimension|reference"></attr>
@@ -66,7 +86,22 @@ dependencies {
 <!--扫描震动-->
 <attr name="vibrator" format="boolean|reference"></attr>
 ```
-3.扫码监听
+## 手电筒开关
+```
+ScanCodeView scan_code = findViewById(R.id.scan_code);
+scan_code.toggleTorch();
+```
+## 暂停解码
+```
+ScanCodeView scan_code = findViewById(R.id.scan_code);
+scan_code.setPause(true);
+```
+## 恢复解码
+```
+ScanCodeView scan_code = findViewById(R.id.scan_code);
+scan_code.setResume(true);
+```
+## 扫码监听
 ```
 ScanCodeView scan_code = findViewById(R.id.scan_code);
 scan_code.setOnScanCodeListener(new ScanResultCallback());
@@ -83,15 +118,15 @@ public void onScanCodeFailed(ReaderException exception) {
    }
 }
 ```
-4.创建二维码
+## 创建二维码
 ```
 Bitmap qrCode = ZXWriter.createQRCode("xxxx")
 ```
-5.创建条形码
+## 创建条形码
 ```
 Bitmap barCode = ZXWriter.createCode(BarcodeFormat.CODE_128,"xxxx",300,150);
 ```
-6.读取照片条形码/二维码
+## 读取照片条形码/二维码
 ```
 File file = new File("/storage/emulated/0/tencent/TIMfile_recv/0001.png");
 ZXReader.fromFile(file, new OnScanCodeListener() {

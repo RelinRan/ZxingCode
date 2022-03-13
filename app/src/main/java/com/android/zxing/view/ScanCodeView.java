@@ -39,6 +39,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
     public static boolean BETA = false;
     private long interval = 200;
     private String TAG = ScanCodeView.class.getSimpleName();
+    private boolean pause;
 
     public ScanCodeView(@NonNull Context context) {
         super(context);
@@ -54,8 +55,8 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         super(context, attrs, defStyleAttr);
         initAttributeSet(context, attrs);
     }
-    /**
 
+    /**
      * 初始化
      *
      * @param context
@@ -127,9 +128,54 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         }
     }
 
+    /**
+     * @return 是否暂停
+     */
+    public boolean isPause() {
+        return pause;
+    }
+
+    /**
+     * 设置是否暂停
+     *
+     * @param pause 暂停
+     */
+    public void setPause(boolean pause) {
+        this.pause = pause;
+    }
+
+    /**
+     * 暂停
+     */
+    public void onPause() {
+        this.pause = true;
+    }
+
+    /**
+     * @return 是否苏醒
+     */
+    public boolean isResume() {
+        return !pause;
+    }
+
+    /**
+     * 设置是否苏醒
+     * @param resume 是否苏醒
+     */
+    public void setResume(boolean resume) {
+        this.pause = !resume;
+    }
+
+    /**
+     * 苏醒
+     */
+    public void onResume() {
+        this.pause = false;
+    }
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        if (System.currentTimeMillis() - previewTime > interval) {
+        if (System.currentTimeMillis() - previewTime > interval && isResume()) {
             int width = camera.getParameters().getPreviewSize().width;
             int height = camera.getParameters().getPreviewSize().height;
             float xScale = (height * 1.0F) / (scanAreaView.getWidth() * 1.0F);
@@ -207,22 +253,11 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
         this.onScanCodeListener = onScanCodeListener;
     }
 
-    public interface OnScanCodeListener {
-
-        /**
-         * 扫码成功
-         *
-         * @param result
-         */
-        void onScanCodeSucceed(Result result);
-
-        /**
-         * 扫码失败
-         *
-         * @param exception
-         */
-        void onScanCodeFailed(Exception exception);
-
+    /**
+     * 打开关闭手电筒
+     */
+    public void toggleTorch() {
+        cameraManager.toggleTorch();
     }
 
     /**
@@ -241,14 +276,6 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
      */
     public CameraManager getCameraManager() {
         return cameraManager;
-    }
-
-    /**
-     * 设置手电筒
-     * @param open 是否打开
-     */
-    public void setFlashlight(boolean open){
-        cameraManager.setFlashlight(open);
     }
 
     /**
@@ -280,6 +307,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
 
     /**
      * 设置预览间隔
+     *
      * @param interval
      */
     public void setInterval(long interval) {

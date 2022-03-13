@@ -12,9 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: Relin
- * Describe:相机助手
- * Date:2020/12/8 22:57
+ * 相机助手
  */
 public class CameraManager implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
 
@@ -36,6 +34,7 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
     private int requireHeight = 1920;
     private Camera.Size size;
     private TextureView textureView;
+    private SurfaceTexture surface;
 
     public CameraManager() {
     }
@@ -128,6 +127,19 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
     }
 
     /**
+     * 打开关闭手电筒
+     */
+    public void toggleTorch() {
+        Camera.Parameters params = camera.getParameters();
+        if ((params.getFlashMode().equals(Camera.Parameters.FLASH_MODE_OFF))) {
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        }else{
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        }
+        camera.setParameters(params);
+    }
+
+    /**
      * 设置焦点区域
      *
      * @param camera 相机
@@ -151,41 +163,20 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
     }
 
     /**
-     * 设置手电筒
-     *
-     * @param open 是否打开
-     */
-    public void setFlashlight(boolean open) {
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setFlashMode(open ? Camera.Parameters.FLASH_MODE_ON : Camera.Parameters.FLASH_MODE_OFF);
-        try {
-            camera.setParameters(parameters);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (open) {
-            camera.startPreview();
-        } else {
-            camera.stopPreview();
-        }
-    }
-
-    /**
      * 自动聚焦
      */
     public void autoFocus() {
         if (camera == null) {
             return;
         }
-        try {
-            camera.autoFocus((success, camera) -> {
+        camera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
                 if (success) {
                     camera.cancelAutoFocus();
                 }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
     /**
@@ -204,6 +195,7 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
         }
     }
 
+
     /**
      * 解析相机参数
      *
@@ -213,8 +205,8 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
         List<Camera.Size> pictureSizes = camera.getParameters().getSupportedPictureSizes();
         List<Camera.Size> previewSizes = camera.getParameters().getSupportedPreviewSizes();
         for (int i = 0; i < previewSizes.size(); i++) {
-            int previewWidth = previewSizes.get(i).width;
-            int previewHeight = previewSizes.get(i).height;
+            int previewWidth = pictureSizes.get(i).width;
+            int previewHeight = pictureSizes.get(i).height;
             Log.i(TAG, "previewSizes width = " + previewWidth + " , height = " + previewHeight);
         }
     }
@@ -308,6 +300,7 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        this.surface = surface;
         open(cameraId);
         startPreview(surface, this);
         if (onCameraPreviewListener != null) {

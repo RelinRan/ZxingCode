@@ -2,14 +2,7 @@ package com.android.zxing.coder;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 
 import com.android.zxing.utils.DecoderFormat;
 import com.google.zxing.BarcodeFormat;
@@ -20,6 +13,7 @@ import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
+import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.io.File;
@@ -32,31 +26,6 @@ import java.util.Map;
  * zxing解码
  */
 public class ZXReader {
-
-    /**
-     * 最小宽度
-     */
-    public static int MIN_WIDTH = 50;
-    /**
-     * 最小高度
-     */
-    public static int MIN_HEIGHT = 50;
-    /**
-     * 指数幂 - 底数
-     */
-    public static double POWER_BASE = 0.95;
-    /**
-     * 日志标识
-     */
-    public static final String TAG = ZXReader.class.getSimpleName();
-    /**
-     * 异常信息
-     */
-    public static String MSG_EXCEPTION = "Data not parsed.";
-    /**
-     * 解析消息
-     */
-    private static ReaderHandler readerHandler;
 
     /**
      * 纠正YUV420方向
@@ -99,109 +68,42 @@ public class ZXReader {
     /**
      * 解析图片数据
      *
-     * @param level    解析等级，初始等级1.
      * @param bitmap   图片Bitmap
      * @param listener 解析监听
      */
-    public static void fromBitmap(int level, Bitmap bitmap, OnScanCodeListener listener) {
-        bitmap = decodeGray(bitmap);
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        Log.i(TAG, "fromBitmap width = " + width + ",height = " + height);
+    public static void fromBitmap(Bitmap bitmap, OnScanCodeListener listener) {
         Result result = decodeBitmap(bitmap);
         if (result != null) {
-            Log.i(TAG, "->fromBitmap result = " + result.toString());
-            sendReaderMessage(new ReaderBody(ReaderHandler.OK, result, listener));
+            if (listener != null) {
+                listener.onScanCodeSucceed(result);
+            }
         } else {
-            if (width < MIN_WIDTH || height < MIN_HEIGHT) {
-                Log.i(TAG, "fromBitmap " + MSG_EXCEPTION);
-                sendReaderMessage(new ReaderBody(ReaderHandler.NOT_FOUND, null, listener));
-            } else {
-                double scale = Math.pow(POWER_BASE, level);
-                int reqWidth = (int) (width * scale);
-                int reqHeight = (int) (height * scale);
-                Log.i(TAG, "fromBitmap reqWidth = " + reqWidth + ",reqHeight = " + reqHeight + ",level = " + level + ",POWER_BASE = " + POWER_BASE);
-                Bitmap scaleBitmap = scaleBitmap(bitmap, reqWidth, reqHeight);
-                level += 1;
-                fromBitmap(level, scaleBitmap, listener);
+            if (listener != null) {
+                listener.onScanCodeFailed(new Exception("Not found"));
             }
         }
     }
 
-    /**
-     * 解析Bitmap
-     *
-     * @param bitmap   图片
-     * @param listener 监听
-     */
-    public static void fromBitmap(Bitmap bitmap, OnScanCodeListener listener) {
-        new Thread(new ReaderTask(new ReaderParams(bitmap, listener))).start();
-    }
-
-    /**
-     * 获取读取Handler
-     *
-     * @return
-     */
-    protected static ReaderHandler getReaderHandler() {
-        if (readerHandler == null) {
-            readerHandler = new ReaderHandler(Looper.getMainLooper());
-        }
-        return readerHandler;
-    }
-
-    /**
-     * 发送解析消息
-     *
-     * @param body
-     */
-    protected static void sendReaderMessage(ReaderBody body) {
-        Message msg = getReaderHandler().obtainMessage();
-        msg.what = body.what();
-        msg.obj = body;
-        getReaderHandler().sendMessage(msg);
-    }
-
-    /**
-     * 解析任务
-     */
-    private static class ReaderTask implements Runnable {
-
-        /**
-         * 解析参数
-         */
-        private ReaderParams params;
-
-        public ReaderTask(ReaderParams params) {
-            this.params = params;
-        }
-
-        @Override
-        public void run() {
-            fromBitmap(1, params.bitmap(), params.listener());
-        }
-    }
-
-
-    /**
-     * 解析图片为二维码
-     *
-     * @param bitmap 图片资源
-     * @return
-     */
     private static Result decodeBitmap(Bitmap bitmap) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+        RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixels);
         MultiFormatReader multiFormatReader = getMultiFormatReader();
-        if (source != null) {
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+        if (rgbLuminanceSource != null) {
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
             try {
                 return multiFormatReader.decodeWithState(binaryBitmap);
             } catch (ReaderException e) {
-                return null;
+                if (rgbLuminanceSource != null) {
+                    try {
+                        return new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource)));
+                    } catch (Throwable e2) {
+                        e2.printStackTrace();
+                        return null;
+                    }
+                }
             }
         }
         return null;
@@ -214,60 +116,21 @@ public class ZXReader {
      * @param listener 监听
      */
     public static void fromFile(File file, OnScanCodeListener listener) {
-        if (file == null || !file.exists()) {
-            Log.e(TAG, "fromFile file is not exist.");
+        if (file == null) {
+            new RuntimeException("decode file failed , file is not exist.");
             return;
         }
-        String path = file.getAbsolutePath();
-        Log.i(TAG, "fromFile path = " + path);
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        int sampleSize = options.outHeight / 400;
+        if (sampleSize <= 0) {
+            sampleSize = 1;
+        }
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
         fromBitmap(bitmap, listener);
-    }
-
-    /**
-     * 缩放图片
-     *
-     * @param src       原图片
-     * @param reqWidth  需要宽度
-     * @param reqHeight 需要高度
-     * @return
-     */
-    public static Bitmap scaleBitmap(Bitmap src, int reqWidth, int reqHeight) {
-        if (src == null) {
-            return null;
-        }
-        int height = src.getHeight();
-        int width = src.getWidth();
-        float scaleWidth = ((float) reqWidth) / width;
-        float scaleHeight = ((float) reqHeight) / height;
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-        Bitmap result = Bitmap.createBitmap(src, 0, 0, width, height, matrix, false);
-        if (!src.isRecycled()) {
-            src.recycle();
-        }
-        return result;
-    }
-
-    /**
-     * 解析为灰色图片
-     *
-     * @param src
-     * @return
-     */
-    public static Bitmap decodeGray(Bitmap src) {
-        int width, height;
-        height = src.getHeight();
-        width = src.getWidth();
-        Bitmap grayBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        Canvas canvas = new Canvas(grayBitmap);
-        Paint paint = new Paint();
-        ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(0);
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(src, 0, 0, paint);
-        return grayBitmap;
     }
 
     /**
@@ -324,8 +187,7 @@ public class ZXReader {
      * @param reverseHorizontal 水平反转
      */
     public static void fromYuv420(byte[] yuv420, int dataWidth, int dataHeight, int left, int top, int width, int height, boolean reverseHorizontal, OnScanCodeListener listener) {
-        if (height <= 0 || width <= 0) {
-            Log.e(TAG, "模拟器不支持二维码扫码.");
+        if (width < 0 || height < 0) {
             return;
         }
         byte[] data = correctYuv420(yuv420, dataWidth, dataHeight);
