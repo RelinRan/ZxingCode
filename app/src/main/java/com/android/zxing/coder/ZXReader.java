@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public class ZXReader {
 
+    public static final String MSG_EXCEPTION = "未扫描出结果";
+
     /**
      * 纠正YUV420方向
      *

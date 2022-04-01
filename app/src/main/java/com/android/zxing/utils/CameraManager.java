@@ -205,8 +205,8 @@ public class CameraManager implements TextureView.SurfaceTextureListener, Camera
         List<Camera.Size> pictureSizes = camera.getParameters().getSupportedPictureSizes();
         List<Camera.Size> previewSizes = camera.getParameters().getSupportedPreviewSizes();
         for (int i = 0; i < previewSizes.size(); i++) {
-            int previewWidth = pictureSizes.get(i).width;
-            int previewHeight = pictureSizes.get(i).height;
+            int previewWidth = previewSizes.get(i).width;
+            int previewHeight = previewSizes.get(i).height;
             Log.i(TAG, "previewSizes width = " + previewWidth + " , height = " + previewHeight);
         }
     }
