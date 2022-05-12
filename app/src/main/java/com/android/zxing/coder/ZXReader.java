@@ -3,6 +3,7 @@ package com.android.zxing.coder;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.util.Log;
 
 import com.android.zxing.utils.DecoderFormat;
 import com.google.zxing.BarcodeFormat;
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 public class ZXReader {
 
+    private static final String TAG = ZXReader.class.getSimpleName();
     public static final String MSG_EXCEPTION = "未扫描出结果";
 
     /**
@@ -76,10 +78,12 @@ public class ZXReader {
     public static void fromBitmap(Bitmap bitmap, OnScanCodeListener listener) {
         Result result = decodeBitmap(bitmap);
         if (result != null) {
+            Log.i(TAG, "->fromBitmap result = " + result.toString());
             if (listener != null) {
                 listener.onScanCodeSucceed(result);
             }
         } else {
+            Log.i(TAG, "->fromBitmap not found.");
             if (listener != null) {
                 listener.onScanCodeFailed(new Exception("Not found"));
             }
@@ -87,6 +91,10 @@ public class ZXReader {
     }
 
     private static Result decodeBitmap(Bitmap bitmap) {
+        if (bitmap==null){
+            Log.i(TAG, "->decodeBitmap bitmap null.");
+            return null;
+        }
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int[] pixels = new int[width * height];
@@ -98,15 +106,16 @@ public class ZXReader {
             try {
                 return multiFormatReader.decodeWithState(binaryBitmap);
             } catch (ReaderException e) {
-                if (rgbLuminanceSource != null) {
-                    try {
-                        return new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource)));
-                    } catch (Throwable e2) {
-                        e2.printStackTrace();
-                        return null;
-                    }
+                e.printStackTrace();
+                try {
+                    return new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource)));
+                } catch (Throwable e2) {
+                    e2.printStackTrace();
+                    return null;
                 }
             }
+        } else {
+            Log.i(TAG, "->decodeBitmap rgbLuminanceSource null.");
         }
         return null;
     }
@@ -119,9 +128,10 @@ public class ZXReader {
      */
     public static void fromFile(File file, OnScanCodeListener listener) {
         if (file == null) {
-            new RuntimeException("decode file failed , file is not exist.");
+            new RuntimeException("decode file failed , file is not exist.").printStackTrace();
             return;
         }
+        Log.i(TAG, "->fromFile "+file.getAbsolutePath()+","+(file.length()/1024)+"kb");
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(file.getAbsolutePath(), options);
