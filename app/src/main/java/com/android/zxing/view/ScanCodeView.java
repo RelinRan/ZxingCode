@@ -37,7 +37,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
     private OnScanCodeListener onScanCodeListener;
     private long previewTime = 0;
     public static boolean BETA = false;
-    private long interval = 200;
+    private long interval = 50;
     private String TAG = ScanCodeView.class.getSimpleName();
     private boolean pause;
 
@@ -160,6 +160,7 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
 
     /**
      * 设置是否苏醒
+     *
      * @param resume 是否苏醒
      */
     public void setResume(boolean resume) {
@@ -184,9 +185,11 @@ public class ScanCodeView extends FrameLayout implements CameraManager.OnCameraP
             int top = (int) (yScale * scanAreaView.getBorderTop());
             int right = (int) (xScale * (scanAreaView.getBorderRight() - scanAreaView.getBorderLeft()));
             int bottom = (int) (xScale * scanAreaView.getBorderBottom() - scanAreaView.getBorderTop());
+            float viewScale = (getHeight() * 1.0F) / (width * 1.0F);
+            textureView.setScaleX(viewScale);
             if (BETA) {
                 Log.i(TAG, "->Frame " + "width=" + width + ",height=" + height);
-                Log.i(TAG, "->Scale " + "xScale=" + xScale + ",yScale=" + yScale);
+                Log.i(TAG, "->Scale " + "xScale=" + xScale + ",yScale=" + yScale+",scale="+viewScale);
                 Log.i(TAG, "->Border " + "left=" + scanAreaView.getBorderLeft() + ",top=" + scanAreaView.getBorderTop() + ",right=" + scanAreaView.getBorderRight() + ",bottom=" + scanAreaView.getBorderBottom());
                 Log.i(TAG, "->Rect left=" + left + ",top=" + top + ",right=" + right + ",bottom=" + bottom);
             }
