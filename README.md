@@ -29,8 +29,8 @@ dependencies {
 }
 ```
 ## ARR
-GitHub下载：[zxing_code_2022.5.12.1.aar](https://github.com/RelinRan/AndroidPay/blob/master/zxing_code_2022.5.12.1.aar)  
-Gitee下载：[zxing_code_2022.5.12.1.aar](https://gitee.com/relin/AndroidPay/blob/master/zxing_code_2022.5.12.1.aar)  
+GitHub下载：[zxing_code_2022.5.12.1.aar](https://github.com/RelinRan/ZxingCode/blob/master/zxing_code_2022.5.12.1.aar)  
+Gitee下载：[zxing_code_2022.5.12.1.aar](https://gitee.com/relin/ZxingCode/blob/master/zxing_code_2022.5.12.1.aar)  
 下载之后放入libs文件夹里面，然后./app/build.gradle配置如下
 ```
 android {
