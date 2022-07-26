@@ -1,10 +1,10 @@
 # ZxingCode
-[国外GitHub](https://github.com/RelinRan/ZxingCode)、[国内Gitee](https://gitee.com/relin/ZxingCode)  
 以core-3.4.jar为基础构建，具有如下功能：   
 1.创建条形码、二维码;    
 2.相机扫描条形码、二维码;    
 3.读取照片条形码、二维码;     
-4.识别率算法修改提升;    
+4.识别率算法修改提升;  
+5.扫码View背景颜色可修改;  
 ## FIX-2022.5.12.1
 1.新增手电筒开关调用方法;     
 2.新增暂停解码方法;    
@@ -12,6 +12,14 @@
 4.虚拟机扫码崩溃;    
 5.OnScanCodeListener统一为一个;  
 6.图形变形问题处理;  
+# 预览
+![效果](./ic_preview.png)  
+# 资源
+|名字|资源|
+|-|-|
+|AAR|[zxing_code.aar](https://github.com/RelinRan/ZxingCode/blob/master/zxing_code_2022.5.12.1.aar)|
+|GitHub |[ZxingCode](https://github.com/RelinRan/ZxingCode)|
+|Gitee|[ZxingCode](https://gitee.com/relin/ZxingCode)|
 ## Dependencies
 ./build.grade | setting.grade
 ```
@@ -28,10 +36,8 @@ dependencies {
 	implementation 'com.github.RelinRan:ZxingCode:2022.5.12.1'
 }
 ```
-## ARR
-GitHub下载：[zxing_code_2022.5.12.1.aar](https://github.com/RelinRan/ZxingCode/blob/master/zxing_code_2022.5.12.1.aar)  
-Gitee下载：[zxing_code_2022.5.12.1.aar](https://gitee.com/relin/ZxingCode/blob/master/zxing_code_2022.5.12.1.aar)  
-下载之后放入libs文件夹里面，然后./app/build.gradle配置如下
+## ARR  
+下载之后放入libs文件夹里面，然后./app/build.gradle配置如下  
 ```
 android {
     ....
